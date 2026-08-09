@@ -50,6 +50,7 @@ type Middlewares struct {
 	Recovery   *middleware.RecoveryMiddleware
 	RequestLog *middleware.RequestLogMiddleware
 	CORS       *middleware.CORS
+	CSRF       *middleware.CSRFMiddleware
 }
 
 // Register wires middleware and routes onto the Hertz engine. Swagger UI is
@@ -57,7 +58,7 @@ type Middlewares struct {
 // it exposes the full API schema.
 func Register(h *server.Hertz, hs *Handlers, mw *Middlewares, enableSwagger bool) {
 	h.Use(mw.RequestID.Handle, mw.Recovery.Handle, mw.Metrics.Handle, mw.RequestLog.Handle,
-		mw.RateLimit.Handle, mw.CORS.Handle)
+		mw.RateLimit.Handle, mw.CORS.Handle, mw.CSRF.Handle)
 
 	api := h.Group("/api/v1")
 

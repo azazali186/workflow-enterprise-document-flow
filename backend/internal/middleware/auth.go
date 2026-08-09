@@ -12,6 +12,7 @@ import (
 	"github.com/aeroxe/docu-flow/backend/internal/pkg/jwt"
 	"github.com/aeroxe/docu-flow/backend/internal/pkg/logger"
 	"github.com/aeroxe/docu-flow/backend/internal/pkg/response"
+	"github.com/aeroxe/docu-flow/backend/internal/pkg/sessioncookie"
 	"github.com/aeroxe/docu-flow/backend/internal/service"
 	"github.com/cloudwego/hertz/pkg/app"
 	"go.uber.org/zap"
@@ -36,13 +37,17 @@ func NewAuthMiddleware(c *cache.Client, ttl time.Duration, statusFn UserStatusCh
 
 // Handle implements app.HandlerFunc.
 func (m *AuthMiddleware) Handle(ctx context.Context, c *app.RequestContext) {
-	authorization := string(c.Request.Header.Peek("Authorization"))
-	if len(authorization) <= 7 || !strings.HasPrefix(authorization, "Bearer ") {
+	// The token arrives either as an Authorization header (API clients, the
+	// Playwright E2E suite) or as the HttpOnly session cookie (the SPA).
+	tokenStr := bearerToken(c)
+	if tokenStr == "" {
+		tokenStr = sessioncookie.Token(c)
+	}
+	if tokenStr == "" {
 		response.Fail("invalid token").SetCode(apperror.CodeUnauthorized).Json(c)
 		c.Abort()
 		return
 	}
-	tokenStr := authorization[7:]
 	claims, err := jwt.ParseToken(tokenStr)
 	if err != nil {
 		logger.Warn("auth: token parse failed", zap.Error(err))
@@ -79,6 +84,15 @@ func (m *AuthMiddleware) Handle(ctx context.Context, c *app.RequestContext) {
 	c.Set("role_ids", claims.RoleIDs)
 	c.Set("token", tokenStr)
 	c.Next(ctx)
+}
+
+// bearerToken extracts a Bearer token from the Authorization header, if any.
+func bearerToken(c *app.RequestContext) string {
+	authorization := string(c.Request.Header.Peek("Authorization"))
+	if len(authorization) > 7 && strings.HasPrefix(authorization, "Bearer ") {
+		return authorization[7:]
+	}
+	return ""
 }
 
 // NotFoundHandler answers unmatched routes.

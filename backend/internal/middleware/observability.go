@@ -144,7 +144,8 @@ func (crs *CORS) Handle(ctx context.Context, c *app.RequestContext) {
 	if crs.allows(origin) {
 		c.Response.Header.Set("Access-Control-Allow-Origin", origin)
 		c.Response.Header.Set("Access-Control-Allow-Methods", "POST, PATCH, DELETE, OPTIONS")
-		c.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-CSRF-Token")
+		c.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 		c.Response.Header.Set("Access-Control-Max-Age", "86400")
 	}
 	if string(c.Request.Method()) == "OPTIONS" {

@@ -70,6 +70,7 @@ func main() {
 		Recovery:   middleware.NewRecoveryMiddleware(),
 		RequestLog: middleware.NewRequestLogMiddleware(),
 		CORS:       middleware.NewCORS(cfg.CORSOrigins),
+		CSRF:       middleware.NewCSRFMiddleware(),
 	}
 
 	router.Register(h, container.Handlers, mw, cfg.SwaggerEnabled)

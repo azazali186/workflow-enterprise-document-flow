@@ -61,9 +61,15 @@ var (
 		"change-me-to-a-long-random-secret",
 		"changeme",
 		"secret",
+		// The development fallback baked into Load (see below): production must
+		// never sign tokens with a key that ships in source code.
+		"yoYL2iDWHegx30LfD9Vz3t0LKcpHZ7H77x1ImRiIfbIzc+6zcCVSrm1YgIwZhdTE",
 	}
 	weakEncryptionKeys = []string{
 		"/7DNZtaYwk9xCd7gLiO3fjBLz8Sm3WAOQiE2QZ53Vt8=",
+		// The deterministic development fallback (see Load): production must
+		// never run on a key that ships in source code.
+		"gLKrBZXjEQOnP33JgHQ5p3tX+KXzprNhZVa6+7il6SY=",
 	}
 	weakAdminPasswords = []string{
 		"ChangeMe123!",
@@ -73,14 +79,14 @@ var (
 // Load reads configuration from the environment.
 func Load() (*Config, error) {
 	c := &Config{
-		Port:            getEnv("PORT", "8080"),
+		Port:            getEnv("PORT", "8090"),
 		Env:             getEnv("ENV", "development"),
 		LogLevel:        getEnv("LOG_LEVEL", "info"),
-		DatabaseURL:     getEnv("DATABASE_URL", ""),
+		DatabaseURL:     getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/docu_flow?sslmode=disable"),
 		RedisURL:        getEnv("REDIS_URL", "redis://localhost:6379"),
 		NATSURL:         getEnv("NATS_URL", "nats://localhost:4222"),
-		JWTSecret:       getEnv("JWT_SECRET", ""),
-		EncryptionKey:   getEnv("ENCRYPTION_KEY", ""),
+		JWTSecret:       getEnv("JWT_SECRET", "yoYL2iDWHegx30LfD9Vz3t0LKcpHZ7H77x1ImRiIfbIzc+6zcCVSrm1YgIwZhdTE"),
+		EncryptionKey:   getEnv("ENCRYPTION_KEY", "gLKrBZXjEQOnP33JgHQ5p3tX+KXzprNhZVa6+7il6SY="),
 		AdminEmail:      getEnv("ADMIN_EMAIL", "admin@aeroxe.io"),
 		AdminPassword:   getEnv("ADMIN_PASSWORD", "ChangeMe123!"),
 		AdminName:       getEnv("ADMIN_NAME", "Super Admin"),

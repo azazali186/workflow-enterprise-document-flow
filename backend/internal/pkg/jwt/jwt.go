@@ -2,6 +2,9 @@
 package jwt
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -70,4 +73,16 @@ func ParseToken(tokenStr string) (*Claims, error) {
 		return nil, ErrTokenInvalid
 	}
 	return claims, nil
+}
+
+// CSRFFor derives the double-submit CSRF value bound to a token: a keyed hash
+// of the token under the signing secret. The SPA receives it in the login/
+// refresh response body and echoes it in the X-CSRF-Token header; the CSRF
+// middleware recomputes it from the HttpOnly session cookie, so no additional
+// cookie or server state is needed. An attacker cannot forge it without the
+// token, which JS cannot read.
+func CSRFFor(token string) string {
+	m := hmac.New(sha256.New, secret)
+	_, _ = m.Write([]byte(token))
+	return hex.EncodeToString(m.Sum(nil))[:32]
 }

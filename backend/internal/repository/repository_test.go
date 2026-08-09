@@ -124,6 +124,34 @@ func TestListSearch(t *testing.T) {
 	}
 }
 
+func TestListPreloadsRelations(t *testing.T) {
+	db := testDB(t)
+	role := model.Role{Code: "admin", Name: "Administrator"}
+	if err := db.Create(&role).Error; err != nil {
+		t.Fatal(err)
+	}
+	user := model.User{Email: "a@example.com", PasswordHash: "x", Name: "Alice", Status: model.UserActive}
+	if err := db.Create(&user).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Create(&model.UserRole{UserID: user.ID, RoleID: role.ID}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	repo := NewUserRepo(db)
+	n, _ := (&pagination.Request{Limit: 10}).Normalize("created_at")
+	items, _, _, err := repo.List(context.Background(), ListQuery{P: n})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("list returned %d users, want 1", len(items))
+	}
+	if len(items[0].Roles) != 1 || items[0].Roles[0].Code != "admin" {
+		t.Errorf("roles not preloaded: %+v", items[0].Roles)
+	}
+}
+
 func TestListDateRange(t *testing.T) {
 	db := testDB(t)
 	seedCategories(t, db, 5)

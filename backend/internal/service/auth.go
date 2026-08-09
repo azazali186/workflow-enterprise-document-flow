@@ -30,10 +30,13 @@ type LoginInput struct {
 	Password string
 }
 
-// AuthResult is returned by login/register/refresh.
+// AuthResult is returned by login/register/refresh. CSRF is the double-submit
+// value bound to this token; the SPA keeps it in memory and echoes it in the
+// X-CSRF-Token header.
 type AuthResult struct {
-	Token     string     `json:"token"`
-	ExpiresAt time.Time  `json:"expires_at"`
+	Token     string      `json:"token"`
+	ExpiresAt time.Time   `json:"expires_at"`
+	CSRF      string      `json:"csrf,omitempty"`
 	User      *model.User `json:"user"`
 }
 
@@ -175,7 +178,7 @@ func (s *authService) issueSession(ctx context.Context, user *model.User) (*Auth
 	if err := s.cache.Set(SSOKey(user.ID), SSOValue(token, user.ID), s.ttl); err != nil {
 		return nil, apperror.Internal("failed to persist session", err)
 	}
-	return &AuthResult{Token: token, ExpiresAt: exp, User: user}, nil
+	return &AuthResult{Token: token, ExpiresAt: exp, CSRF: jwt.CSRFFor(token), User: user}, nil
 }
 
 func (s *authService) recordLogin(ctx context.Context, user *model.User, ok bool, email, reason, ip, ua string) error {

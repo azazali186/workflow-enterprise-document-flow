@@ -2,19 +2,27 @@ package handler
 
 import (
 	"context"
+	"strings"
 
+	"github.com/aeroxe/docu-flow/backend/internal/pkg/apperror"
+	"github.com/aeroxe/docu-flow/backend/internal/pkg/jwt"
 	"github.com/aeroxe/docu-flow/backend/internal/pkg/response"
+	"github.com/aeroxe/docu-flow/backend/internal/pkg/sessioncookie"
 	"github.com/aeroxe/docu-flow/backend/internal/service"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
 // AuthHandler exposes authentication endpoints.
 type AuthHandler struct {
-	svc service.AuthService
+	svc           service.AuthService
+	secureCookies bool
 }
 
-// NewAuthHandler wires the handler.
-func NewAuthHandler(svc service.AuthService) *AuthHandler { return &AuthHandler{svc: svc} }
+// NewAuthHandler wires the handler. secureCookies marks session cookies
+// Secure (HTTPS-only) — true in production, false in local development.
+func NewAuthHandler(svc service.AuthService, secureCookies bool) *AuthHandler {
+	return &AuthHandler{svc: svc, secureCookies: secureCookies}
+}
 
 // registerRequest is the account creation payload.
 type registerRequest struct {
@@ -44,6 +52,7 @@ func (h *AuthHandler) Register(ctx context.Context, c *app.RequestContext) {
 		writeError(c, err)
 		return
 	}
+	h.setSessionCookies(c, result)
 	response.Success(result).Json(c)
 }
 
@@ -72,6 +81,7 @@ func (h *AuthHandler) Login(ctx context.Context, c *app.RequestContext) {
 		writeError(c, err)
 		return
 	}
+	h.setSessionCookies(c, result)
 	response.Success(result).Json(c)
 }
 
@@ -83,6 +93,8 @@ func (h *AuthHandler) Login(ctx context.Context, c *app.RequestContext) {
 // @Success      200 {object} response.Response
 // @Router       /api/v1/auth/logout [post]
 func (h *AuthHandler) Logout(ctx context.Context, c *app.RequestContext) {
+	// Expire the browser cookies unconditionally, then revoke the SSO entry.
+	sessioncookie.Clear(c, h.secureCookies)
 	uid := userID(c)
 	if uid == "" {
 		response.Success(nil).Json(c)
@@ -102,16 +114,47 @@ func (h *AuthHandler) Logout(ctx context.Context, c *app.RequestContext) {
 // @Produce      json
 // @Success      200 {object} response.Response
 // @Router       /api/v1/auth/refresh [post]
+//
+// This route is public (no auth middleware runs), so the token is parsed
+// straight from the Authorization header or the session cookie instead of
+// the middleware context.
 func (h *AuthHandler) Refresh(ctx context.Context, c *app.RequestContext) {
-	uid := userID(c)
-	token, _ := c.Get("token")
-	tok, _ := token.(string)
-	result, err := h.svc.Refresh(ctx, tok, uid)
+	tokenStr := bearerToken(c)
+	if tokenStr == "" {
+		tokenStr = sessioncookie.Token(c)
+	}
+	if tokenStr == "" {
+		writeError(c, apperror.Unauthorized("invalid token"))
+		return
+	}
+	claims, err := jwt.ParseToken(tokenStr)
+	if err != nil {
+		writeError(c, apperror.Unauthorized("invalid token"))
+		return
+	}
+	result, err := h.svc.Refresh(ctx, tokenStr, claims.UserID)
 	if err != nil {
 		writeError(c, err)
 		return
 	}
+	h.setSessionCookies(c, result)
 	response.Success(result).Json(c)
+}
+
+// bearerToken extracts a Bearer token from the Authorization header, if any.
+func bearerToken(c *app.RequestContext) string {
+	authorization := string(c.Request.Header.Peek("Authorization"))
+	if len(authorization) > 7 && strings.HasPrefix(authorization, "Bearer ") {
+		return authorization[7:]
+	}
+	return ""
+}
+
+// setSessionCookies installs the HttpOnly token cookie. The matching CSRF
+// value travels in the response body (AuthResult.CSRF) and lives in the SPA's
+// memory; the CSRF middleware recomputes it from this cookie.
+func (h *AuthHandler) setSessionCookies(c *app.RequestContext, result *service.AuthResult) {
+	sessioncookie.SetToken(c, result.Token, sessioncookie.MaxAgeFor(result.ExpiresAt), h.secureCookies)
 }
 
 // Me handles POST /api/v1/auth/me.

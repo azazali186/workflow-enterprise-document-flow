@@ -130,7 +130,7 @@ func New(ctx context.Context, cfg *config.Config) (*Container, error) {
 
 	// Handlers.
 	hs := &router.Handlers{
-		Auth:         handler.NewAuthHandler(authSvc),
+		Auth:         handler.NewAuthHandler(authSvc, cfg.IsProduction()),
 		User:         handler.NewUserHandler(userSvc),
 		Role:         handler.NewRoleHandler(roleCrud, rbacSvc),
 		Permission:   handler.NewPermissionHandler(permCrud),

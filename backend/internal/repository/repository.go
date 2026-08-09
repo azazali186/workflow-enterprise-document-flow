@@ -87,7 +87,9 @@ func (r *Repo[T]) Delete(ctx context.Context, id string) error {
 }
 
 // List runs a cursor-paginated query with filters, search, date range and
-// dynamic sorting, returning rows, page meta and an optional summary.
+// dynamic sorting, returning rows, page meta and an optional summary. The
+// configured preloads (e.g. Roles, Permissions) are applied so list rows
+// carry the same relations as GetByID.
 func (r *Repo[T]) List(ctx context.Context, q ListQuery) ([]T, *pagination.Meta, map[string]any, error) {
 	tx := r.baseQuery(ctx, q)
 
@@ -102,6 +104,10 @@ func (r *Repo[T]) List(ctx context.Context, q ListQuery) ([]T, *pagination.Meta,
 	}
 	tx = cursorTx
 	sortCol := r.resolveSort(q)
+
+	for _, p := range r.Preloads {
+		tx = tx.Preload(p)
+	}
 
 	rows := make([]T, 0, q.P.Limit+1)
 	tx = tx.Order(sortCol + " " + q.P.SortDir).Order("id " + q.P.SortDir).Limit(q.P.Limit + 1)

@@ -25,6 +25,24 @@ func TestProductionRejectsWeakJWTSecret(t *testing.T) {
 	}
 }
 
+func TestProductionRejectsSourceDefaultJWTSecret(t *testing.T) {
+	productionEnv(t)
+	// The dev fallback baked into Load (used when JWT_SECRET is unset).
+	t.Setenv("JWT_SECRET", "yoYL2iDWHegx30LfD9Vz3t0LKcpHZ7H77x1ImRiIfbIzc+6zcCVSrm1YgIwZhdTE")
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "JWT_SECRET") {
+		t.Fatalf("expected JWT_SECRET rejection, got %v", err)
+	}
+}
+
+func TestProductionRejectsSourceDefaultEncryptionKey(t *testing.T) {
+	productionEnv(t)
+	// The deterministic dev key from Load's fallback.
+	t.Setenv("ENCRYPTION_KEY", "gLKrBZXjEQOnP33JgHQ5p3tX+KXzprNhZVa6+7il6SY=")
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "ENCRYPTION_KEY") {
+		t.Fatalf("expected ENCRYPTION_KEY rejection, got %v", err)
+	}
+}
+
 func TestProductionRejectsWeakEncryptionKey(t *testing.T) {
 	productionEnv(t)
 	t.Setenv("ENCRYPTION_KEY", "/7DNZtaYwk9xCd7gLiO3fjBLz8Sm3WAOQiE2QZ53Vt8=")

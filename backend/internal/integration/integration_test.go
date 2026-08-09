@@ -17,6 +17,7 @@ package integration
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -36,6 +37,22 @@ import (
 	"github.com/aeroxe/docu-flow/backend/internal/ws"
 	"gorm.io/gorm"
 )
+
+// resetTestTables truncates every table except the migration ledger so each
+// run starts from a clean slate. CASCADE clears FK-referencing rows too.
+func resetTestTables(t *testing.T, db *gorm.DB) {
+	t.Helper()
+	var tables []string
+	if err := db.Raw("SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> 'schema_migrations'").Scan(&tables).Error; err != nil {
+		t.Fatalf("list tables: %v", err)
+	}
+	if len(tables) == 0 {
+		return
+	}
+	if err := db.Exec("TRUNCATE TABLE " + strings.Join(tables, ", ") + " RESTART IDENTITY CASCADE").Error; err != nil {
+		t.Fatalf("truncate test tables: %v", err)
+	}
+}
 
 func testConfig(t *testing.T) *config.Config {
 	t.Helper()
@@ -61,6 +78,11 @@ func setup(t *testing.T) (*gorm.DB, *cache.Client, *saga.Coordinator) {
 	if err := database.MigrateVersioned(database.DB, cfg); err != nil {
 		t.Fatalf("migrate: %v", err)
 	}
+	// Reset app tables so repeated local runs against a persistent test DB
+	// behave like CI's fresh Postgres container (the suite seeds fixed-ID
+	// fixtures that would otherwise collide on re-run). schema_migrations is
+	// kept so versioned migrations stay applied.
+	resetTestTables(t, database.DB)
 	// Long-lived context for the cache client (a canceled one would break
 	// every subsequent Redis call).
 	rctx := context.Background()

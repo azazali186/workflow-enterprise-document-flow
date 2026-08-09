@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Canvas: warm paper neutrals, not cold gray */
+  --color-paper-50: #faf9f6;
+  --color-paper-100: #f4f2ec;
+  --color-paper-200: #e9e6dd;
+  --color-paper-300: #d9d5c9;
+
+  /* Ink: deep blue-black for text & chrome */
+  --color-ink-950: #0e1116;
+  --color-ink-900: #161b22;
+  --color-ink-800: #1f2730;
+  --color-ink-700: #2e3944;
+  --color-ink-600: #475563;
+  --color-ink-500: #64748b;
+  --color-ink-400: #8ea0b3;
+  --color-ink-300: #b6c2cf;
+  --color-ink-200: #d7dee6;
+  --color-ink-100: #eaeef2;
+
+  /* Primary: deep indigo — the "signature ink" of the product */
+  --color-primary-50: #eef1ff;
+  --color-primary-100: #e0e6ff;
+  --color-primary-200: #c6d0ff;
+  --color-primary-300: #a2b0fb;
+  --color-primary-400: #7c8af2;
+  --color-primary-500: #5c66e6;
+  --color-primary-600: #4648d0;
+  --color-primary-700: #3a3aab;
+  --color-primary-800: #31338a;
+  --color-primary-900: #2c2f70;
+  --color-primary-950: #1b1c43;
+
+  --color-success-500: #16a36a;
+  --color-success-600: #0f8a59;
+  --color-success-50: #e9f9f1;
+  --color-warning-500: #d99a2b;
+  --color-warning-600: #b87d18;
+  --color-warning-50: #fdf3e0;
+  --color-danger-500: #e0565a;
+  --color-danger-600: #c63b40;
+  --color-danger-50: #fdecec;
+
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', 'Fraunces', ui-serif, Georgia, serif;
+
+  --shadow-card: 0 1px 2px rgb(14 17 22 / 0.04), 0 4px 16px rgb(14 17 22 / 0.05);
+  --shadow-pop: 0 4px 8px rgb(14 17 22 / 0.06), 0 16px 40px rgb(14 17 22 / 0.14);
+
+  --animate-fade-up: fade-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-scale-in: scale-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-paper-50);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Subtle scrollbars for the data tables */
+.nice-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.nice-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-ink-200);
+  border-radius: 999px;
+}
+.nice-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Serif tabular numerals for big dashboard figures */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
