@@ -13,7 +13,7 @@ test('admin can sign in and the session survives a reload', async ({ page }) => 
   await login(page);
 
   // Lands on the admin console with the app shell visible.
-  await expect(page).toHaveURL(/\/app/);
+  await expect(page).toHaveURL(/\/app(?:\/|$)/);
   await expect(page.getByRole('link', { name: /documents/i })).toBeVisible();
 
   // The session lives in an HttpOnly cookie: a hard reload must restore it

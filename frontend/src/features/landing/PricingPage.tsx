@@ -93,9 +93,16 @@ export function PricingPage() {
 
           {/* Billing toggle */}
           <div className="mt-10 flex items-center justify-center gap-3" data-reveal>
-            <span className={cn('text-sm font-medium transition-colors', !annual ? 'text-ink-900' : 'text-ink-400')}>
+            <button
+              onClick={() => setAnnual(false)}
+              aria-pressed={!annual}
+              className={cn(
+                'rounded-md px-2 py-1 text-sm font-medium transition-colors cursor-pointer',
+                !annual ? 'text-ink-900' : 'text-ink-400 hover:text-ink-700',
+              )}
+            >
               Monthly
-            </span>
+            </button>
             <button
               onClick={() => setAnnual((v) => !v)}
               role="switch"
@@ -113,12 +120,19 @@ export function PricingPage() {
                 )}
               />
             </button>
-            <span className={cn('text-sm font-medium transition-colors', annual ? 'text-ink-900' : 'text-ink-400')}>
+            <button
+              onClick={() => setAnnual(true)}
+              aria-pressed={annual}
+              className={cn(
+                'flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium transition-colors cursor-pointer',
+                annual ? 'text-ink-900' : 'text-ink-400 hover:text-ink-700',
+              )}
+            >
               Annual
-              <span className="ml-1.5 rounded-full bg-success-50 px-2 py-0.5 text-[11px] font-semibold text-success-600">
+              <span className="rounded-full bg-success-50 px-2 py-0.5 text-[11px] font-semibold text-success-600">
                 Save ~17%
               </span>
-            </span>
+            </button>
           </div>
         </Container>
       </Section>

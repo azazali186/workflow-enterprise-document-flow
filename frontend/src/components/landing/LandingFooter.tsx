@@ -14,20 +14,11 @@ const COLUMNS: Array<{ heading: string; links: Array<{ label: string; to: string
   },
   {
     heading: 'Workflow',
-    links: [
-      { label: 'Documents', to: '/features' },
-      { label: 'Approvals', to: '/features' },
-      { label: 'Verifications', to: '/features' },
-      { label: 'Templates', to: '/features' },
-    ],
+    links: [{ label: 'How documents move', to: '/features' }],
   },
   {
     heading: 'Company',
-    links: [
-      { label: 'Contact', to: '/contact' },
-      { label: 'About', to: '/contact' },
-      { label: 'Careers', to: '/contact' },
-    ],
+    links: [{ label: 'Contact us', to: '/contact' }],
   },
 ];
 
@@ -76,9 +67,8 @@ export function LandingFooter() {
             © {new Date().getFullYear()} DocuFlow. Every document, in its right place.
           </p>
           <div className="flex items-center gap-5 text-xs text-ink-400">
-            <Link to="/security" className="transition-colors hover:text-ink-600">Privacy</Link>
-            <Link to="/security" className="transition-colors hover:text-ink-600">Terms</Link>
-            <Link to="/security" className="transition-colors hover:text-ink-600">Compliance</Link>
+            <Link to="/security" className="transition-colors hover:text-ink-600">Security &amp; privacy</Link>
+            <Link to="/contact" className="transition-colors hover:text-ink-600">Contact</Link>
           </div>
         </div>
       </Container>

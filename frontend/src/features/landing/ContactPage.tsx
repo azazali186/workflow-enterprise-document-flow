@@ -38,21 +38,23 @@ export function ContactPage() {
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
-  const [sending, setSending] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const onSubmit = async (e: FormEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) {
       toast.error('Please fill in your name, email, and message.');
       return;
     }
-    setSending(true);
-    // Frontend demo submission — wire to a real endpoint (e.g. /contact) when
-    // the backend exposes one. Simulated delay keeps the UX honest.
-    await new Promise((r) => setTimeout(r, 700));
-    setSending(false);
-    toast.success('Message sent', 'Our team will get back to you within one business day.');
+    // Real action: opens the visitor's mail client with the message pre-filled.
+    // Swap for a form endpoint when the backend exposes one.
+    const subject = encodeURIComponent(`DocuFlow enquiry from ${name}${company ? ` (${company})` : ''}`);
+    const body = encodeURIComponent(`${message}
+
+— ${name}
+${email}${company ? `\n${company}` : ''}`);
+    window.location.href = `mailto:hello@docuflow.example?subject=${subject}&body=${body}`;
+    toast.info('Opening your email app', 'Your message will be sent from your own mail client.');
     setName('');
     setEmail('');
     setCompany('');
@@ -113,8 +115,8 @@ export function ContactPage() {
                   placeholder="Tell us about your workflow and what you need…"
                   required
                 />
-                <Button type="submit" size="lg" loading={sending} icon={<Send className="size-4" />}>
-                  {sending ? 'Sending…' : 'Send message'}
+                <Button type="submit" size="lg" icon={<Send className="size-4" />}>
+                  Send message
                 </Button>
               </form>
             </div>

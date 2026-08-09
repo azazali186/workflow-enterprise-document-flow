@@ -125,19 +125,19 @@ body {
 
 /* ---- landing page scroll reveals --------------------------------------- */
 /* Elements start hidden one step below and rise into place when scrolled
-   into view (IntersectionObserver adds .is-revealed). Reduced motion is
-   handled globally above, so this is inert for those users. */
-.reveal {
+   into view (useReveal adds .is-revealed to [data-reveal] elements).
+   Reduced motion is handled globally above, so this is inert for those
+   users — the attribute selector guarantees visibility as a fallback. */
+[data-reveal] {
   opacity: 0;
   transform: translateY(14px);
   transition:
     opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
 }
 
-.reveal.is-revealed {
+[data-reveal].is-revealed {
   opacity: 1;
   transform: translateY(0);
 }
@@ -198,7 +198,7 @@ body {
   .float-slow {
     animation: none;
   }
-  .reveal {
+  [data-reveal] {
     opacity: 1;
     transform: none;
   }

@@ -210,8 +210,8 @@ export function HomePage() {
             <dl className="grid gap-6 sm:grid-cols-3" data-reveal>
               {STATS.map((s) => (
                 <div key={s.label} className="flex flex-col rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-                  <dd className="font-display text-4xl font-semibold tracking-tight text-white">{s.value}</dd>
-                  <dt className="mt-2 text-[13px] leading-snug text-ink-300">{s.label}</dt>
+                  <dt className="order-2 mt-2 text-[13px] leading-snug text-ink-300">{s.label}</dt>
+                  <dd className="order-1 font-display text-4xl font-semibold tracking-tight text-white">{s.value}</dd>
                 </div>
               ))}
             </dl>
