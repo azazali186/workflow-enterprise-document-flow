@@ -104,6 +104,8 @@ services:
         condition: service_healthy
       nats:
         condition: service_started
+      minio:
+        condition: service_started
     healthcheck:
       # The API is POST-only (project convention); a plain GET 404s.
       test: ["CMD", "wget", "-q", "-O", "-", "--post-data={}", "--header=Content-Type: application/json", "http://127.0.0.1:8080/api/v1/healthz"]

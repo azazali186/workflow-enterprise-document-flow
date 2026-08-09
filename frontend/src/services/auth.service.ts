@@ -28,11 +28,6 @@ export const authService = {
     return toSession(result);
   },
 
-  /** Current user + roles (used by the boot session restore). */
-  async me(): Promise<User> {
-    return post<User>(`${BASE}/me`);
-  },
-
   async logout(): Promise<void> {
     try {
       await post<void>(`${BASE}/logout`);

@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { clearSession } from '@/store/authSlice';
-import { setUnauthorizedHandler } from '@/services/http';
+import { setCsrfToken, setUnauthorizedHandler } from '@/services/http';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 function SessionSplash() {
@@ -23,7 +23,12 @@ export function ProtectedRoute() {
   const status = useAppSelector((s) => s.auth.status);
 
   useEffect(() => {
-    setUnauthorizedHandler(() => dispatch(clearSession()));
+    setUnauthorizedHandler(() => {
+      // Drop the in-memory CSRF binding with the session; the next login
+      // delivers a fresh one.
+      setCsrfToken(null);
+      dispatch(clearSession());
+    });
     return () => setUnauthorizedHandler(null);
   }, [dispatch]);
 

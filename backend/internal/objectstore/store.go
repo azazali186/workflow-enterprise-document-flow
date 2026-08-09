@@ -9,8 +9,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/aeroxe/docu-flow/backend/internal/config"
+	"github.com/aeroxe/docu-flow/backend/internal/pkg/retry"
 	"github.com/aeroxe/docu-flow/backend/internal/pkg/uuidx"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -124,8 +126,20 @@ func New(cfg *config.Config) (ObjectStore, error) {
 	if err != nil {
 		return nil, fmt.Errorf("s3 client: %w", err)
 	}
-	if err := ensureBucket(context.Background(), client, cfg.S3Bucket); err != nil {
-		return nil, err
+	// Object storage (minio/S3) may still be booting when the app starts —
+	// especially in CI where the whole stack comes up together. Retry the
+	// bucket init for a short window instead of crash-looping on the race.
+	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+	defer cancel()
+	if err := retry.Do(ctx, retry.Options{
+		MaxAttempts: 12, BaseDelay: 500 * time.Millisecond, MaxDelay: 5 * time.Second, Factor: 1.5,
+	}, func(attempt int) error {
+		if err := ensureBucket(ctx, client, cfg.S3Bucket); err != nil {
+			return fmt.Errorf("ensure bucket (attempt %d): %w", attempt, err)
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("s3 bucket: %w", err)
 	}
 	return &S3Store{client: client, bucket: cfg.S3Bucket, region: cfg.S3Region}, nil
 }

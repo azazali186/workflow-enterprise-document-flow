@@ -32,12 +32,13 @@ func (m *CSRFMiddleware) Handle(ctx context.Context, c *app.RequestContext) {
 		c.Next(ctx)
 		return
 	}
-	// Infra probes and the token-rotation endpoint are exempt: probes are
-	// never called from a browser, and refresh rotates a SameSite=Lax cookie
-	// whose response body is unreadable cross-origin (CORS), so a forged
-	// refresh cannot leak a token.
+	// Exemptions: infra probes (never called from a browser), and the auth
+	// endpoints. Login/register have no session yet; refresh rotates a
+	// SameSite=Lax cookie whose response body is unreadable cross-origin, so a
+	// forged refresh cannot leak a token. Exempting login also avoids a stale
+	// session cookie 403-ing a re-login after server-side expiry.
 	if path := string(c.Request.Path()); path == "/api/v1/healthz" || path == "/api/v1/readyz" ||
-		path == "/api/v1/auth/refresh" {
+		path == "/api/v1/auth/refresh" || path == "/api/v1/auth/login" || path == "/api/v1/auth/register" {
 		c.Next(ctx)
 		return
 	}
