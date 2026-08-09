@@ -36,6 +36,7 @@ type Handlers struct {
 	Report       *handler.ReportHandler
 	Search       *handler.SearchHandler
 	Analytics    *handler.AnalyticsHandler
+	Options      *handler.OptionsHandler
 	Health       *handler.HealthHandler
 	WS           *ws.Endpoint
 }
@@ -72,6 +73,11 @@ func Register(h *server.Hertz, hs *Handlers, mw *Middlewares, enableSwagger bool
 
 	// Real-time events (auth happens inside the endpoint, no API permission).
 	h.GET("/ws", hs.WS.Handle)
+
+	// Authenticated but no fine-grained RBAC: the options lookup is a shared
+	// form helper every signed-in user needs regardless of their roles.
+	authed := api.Group("", mw.Auth.Handle)
+	authed.POST("/options/list", hs.Options.List)
 
 	// Everything below requires auth + route permission.
 	sec := api.Group("", mw.Auth.Handle, mw.RBAC.Handle)

@@ -1,10 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Select, TextInput, Textarea } from '@/components/ui/Field';
+import { TextInput, Textarea } from '@/components/ui/Field';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { documentsService } from '@/services/documents.service';
-import { categoriesService } from '@/services/categories.service';
 import { useToast, errorMessage } from '@/hooks/useToast';
 
 interface DocumentFormModalProps {
@@ -21,13 +21,6 @@ export function DocumentFormModal({ open, onClose }: DocumentFormModalProps) {
   const [categoryId, setCategoryId] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const catsQuery = useQuery({
-    queryKey: ['categories', 'all'],
-    queryFn: () => categoriesService.list({ limit: 100, sort_by: 'sort_order', sort_dir: 'asc' }),
-    enabled: open,
-  });
-  const categories = catsQuery.data?.items ?? [];
 
   useEffect(() => {
     if (!open) return;
@@ -83,12 +76,15 @@ export function DocumentFormModal({ open, onClose }: DocumentFormModalProps) {
         <TextInput label="Title" value={title} onChange={(e) => setTitle(e.target.value)} error={errors.title} placeholder="Q3 Financial Report" required />
         <Textarea label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="A short summary of the document…" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Select label="Category" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-            <option value="">No category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </Select>
+          <SearchableSelect
+            label="Category"
+            kind="categories"
+            value={categoryId}
+            onChange={(id) => setCategoryId(id)}
+            placeholder="Search categories…"
+            hint="Optional — leave empty for uncategorised"
+            allowClear
+          />
           <TextInput label="Tags" value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} placeholder="finance, q3, draft" hint="Comma separated" />
         </div>
       </form>

@@ -109,6 +109,7 @@ func New(ctx context.Context, cfg *config.Config) (*Container, error) {
 	reportSvc := service.NewReportService(db)
 	searchSvc := service.NewSearchService(db, docRepo)
 	analyticsSvc := service.NewAnalyticsService(db)
+	optionsSvc := service.NewOptionsService(db)
 
 	// Generic CRUD services.
 	roleCrud := &service.CrudService[model.Role]{Repo: roleRepo, Audit: audit, Entity: "role"}
@@ -147,6 +148,7 @@ func New(ctx context.Context, cfg *config.Config) (*Container, error) {
 		Report:       handler.NewReportHandler(reportSvc),
 		Search:       handler.NewSearchHandler(searchSvc),
 		Analytics:    handler.NewAnalyticsHandler(analyticsSvc),
+		Options:      handler.NewOptionsHandler(optionsSvc),
 		Health:       handler.NewHealthHandler(),
 		WS: ws.NewEndpoint(hub, database.Cache, cfg.JWTExpiry, cfg.CORSOrigins,
 			ws.ActiveCheck(ActiveUserStatus(db))),

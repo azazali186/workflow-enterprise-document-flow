@@ -2,7 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { TextInput, Select } from '@/components/ui/Field';
+import { Select } from '@/components/ui/Field';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { accessesService } from '@/services/workflow.service';
 import { useToast, errorMessage } from '@/hooks/useToast';
 
@@ -50,9 +51,33 @@ export function AccessGrantModal({ open, onClose }: Props) {
     <Modal open={open} onClose={onClose} title="Grant access" size="md"
       description="Give a user or role explicit access to one document.">
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <TextInput label="Document ID" required value={documentId} onChange={(e) => setDocumentId(e.target.value)} placeholder="UUID of the document" />
-        <TextInput label="User ID (or leave blank for role-wide)" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="UUID of the user" />
-        <TextInput label="Role ID (or leave blank for one user)" value={roleId} onChange={(e) => setRoleId(e.target.value)} placeholder="UUID of the role" />
+        <SearchableSelect
+          label="Document"
+          kind="documents"
+          value={documentId}
+          onChange={(id) => setDocumentId(id)}
+          placeholder="Search documents…"
+          required
+          autoFocus
+        />
+        <SearchableSelect
+          label="User"
+          kind="users"
+          value={userId}
+          onChange={(id) => { setUserId(id); if (id) setRoleId(''); }}
+          placeholder="Search users…"
+          hint="Leave blank to grant via role instead"
+          allowClear
+        />
+        <SearchableSelect
+          label="Role"
+          kind="roles"
+          value={roleId}
+          onChange={(id) => { setRoleId(id); if (id) setUserId(''); }}
+          placeholder="Search roles…"
+          hint="Leave blank to grant to one user"
+          allowClear
+        />
         <Select label="Permission" value={permission} onChange={(e) => setPermission(e.target.value as 'read' | 'write' | 'approve')}>
           <option value="read">Read</option>
           <option value="write">Write</option>

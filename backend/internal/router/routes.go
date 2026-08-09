@@ -34,6 +34,10 @@ var excludedPrefixes = []string{
 	"/api/v1/auth/refresh",
 	"/api/v1/healthz",
 	"/api/v1/readyz",
+	// The options lookup is auth-gated but not a permission-gated operation
+	// (see Register: it sits on the auth-only group), so it must not appear
+	// in the assignable permission catalog.
+	"/api/v1/options",
 }
 
 // IsExcludedRoute reports whether a path is public (no permission required).

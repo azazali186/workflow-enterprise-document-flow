@@ -3,6 +3,7 @@ import { FileText, Plus, Search } from 'lucide-react';
 import { PageHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Field';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Badge, statusTone } from '@/components/ui/Badge';
 import { DataTable, PaginationBar, type Column } from '@/components/ui/DataTable';
 import { DocumentFormModal } from './DocumentFormModal';
@@ -120,16 +121,13 @@ export function DocumentsPage() {
               <option key={s} value={s}>{humanize(s)}</option>
             ))}
           </Select>
-          <Select
-            aria-label="Filter by category"
+          <SearchableSelect
+            kind="categories"
             value={String(table.filters.category_id ?? '')}
-            onChange={(e) => table.setFilter('category_id', e.target.value)}
-          >
-            <option value="">All categories</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </Select>
+            onChange={(id) => table.setFilter('category_id', id)}
+            placeholder="All categories"
+            allowClear
+          />
         </div>
       </div>
 

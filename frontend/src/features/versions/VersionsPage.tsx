@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/ui/Card';
-import { TextInput } from '@/components/ui/Field';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable, PaginationBar, type Column } from '@/components/ui/DataTable';
 import { useCursorPagination } from '@/hooks/useCursorPagination';
@@ -55,19 +55,21 @@ export function VersionsPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1 sm:max-w-md">
-          <TextInput
-            label="Document ID"
+          <SearchableSelect
+            label="Document"
+            kind="documents"
             value={documentId}
-            onChange={(e) => { setDocumentId(e.target.value); pagination.reset(); }}
-            placeholder="Paste a document UUID to load its versions"
+            onChange={(id) => { setDocumentId(id); pagination.reset(); }}
+            placeholder="Search documents…"
+            hint="Pick a document to see its version history"
           />
         </div>
       </div>
 
-      {!documentId.trim() ? (
+      {!documentId ? (
         <div className="rounded-xl border border-dashed border-ink-200 bg-white/60 px-6 py-14 text-center">
-          <p className="text-sm font-medium text-ink-700">Enter a document ID to see its version history</p>
-          <p className="mt-1 text-[13px] text-ink-400">Find document IDs on the Documents page.</p>
+          <p className="text-sm font-medium text-ink-700">Pick a document to see its version history</p>
+          <p className="mt-1 text-[13px] text-ink-400">Search by title above — every saved change is listed here.</p>
         </div>
       ) : query.isLoading ? (
         <div className="space-y-3">
