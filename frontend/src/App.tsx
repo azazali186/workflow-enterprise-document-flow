@@ -5,6 +5,13 @@ import { PageFallback } from '@/components/ui/PageFallback';
 import { restoreSession } from '@/store/authSlice';
 import { useAppDispatch } from '@/store';
 
+const LandingLayout = lazy(() => import('@/components/layout/LandingLayout').then((m) => ({ default: m.LandingLayout })));
+const HomePage = lazy(() => import('@/features/landing/HomePage').then((m) => ({ default: m.HomePage })));
+const FeaturesPage = lazy(() => import('@/features/landing/FeaturesPage').then((m) => ({ default: m.FeaturesPage })));
+const PricingPage = lazy(() => import('@/features/landing/PricingPage').then((m) => ({ default: m.PricingPage })));
+const SecurityPage = lazy(() => import('@/features/landing/SecurityPage').then((m) => ({ default: m.SecurityPage })));
+const ContactPage = lazy(() => import('@/features/landing/ContactPage').then((m) => ({ default: m.ContactPage })));
+
 const LoginPage = lazy(() => import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const UsersPage = lazy(() => import('@/features/users/UsersPage').then((m) => ({ default: m.UsersPage })));
@@ -32,9 +39,19 @@ export default function App() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
+        {/* Public marketing site */}
+        <Route element={<LandingLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="features" element={<FeaturesPage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route path="security" element={<SecurityPage />} />
+          <Route path="contact" element={<ContactPage />} />
+        </Route>
+
         <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
 
-        <Route element={<ProtectedRoute />}>
+        {/* Admin console */}
+        <Route path="/app" element={<ProtectedRoute />}>
           <Route index element={<DashboardPage />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="categories" element={<CategoriesPage />} />

@@ -30,32 +30,32 @@ interface NavItem {
 const navGroups: Array<{ label: string; items: NavItem[] }> = [
   {
     label: 'Overview',
-    items: [{ to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true }],
+    items: [{ to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true }],
   },
   {
     label: 'Workspace',
     items: [
-      { to: '/documents', label: 'Documents', icon: FileText },
-      { to: '/categories', label: 'Categories', icon: FolderTree },
-      { to: '/roles', label: 'Roles & Permissions', icon: ShieldCheck },
-      { to: '/users', label: 'Users', icon: Users },
+      { to: '/app/documents', label: 'Documents', icon: FileText },
+      { to: '/app/categories', label: 'Categories', icon: FolderTree },
+      { to: '/app/roles', label: 'Roles & Permissions', icon: ShieldCheck },
+      { to: '/app/users', label: 'Users', icon: Users },
     ],
   },
   {
     label: 'Workflow',
     items: [
-      { to: '/approvals', label: 'Approvals', icon: CheckCircle2 },
-      { to: '/verifications', label: 'Verifications', icon: BadgeCheck },
-      { to: '/templates', label: 'Templates', icon: Table2 },
-      { to: '/versions', label: 'Versions', icon: History },
-      { to: '/accesses', label: 'Access Grants', icon: KeyRound },
+      { to: '/app/approvals', label: 'Approvals', icon: CheckCircle2 },
+      { to: '/app/verifications', label: 'Verifications', icon: BadgeCheck },
+      { to: '/app/templates', label: 'Templates', icon: Table2 },
+      { to: '/app/versions', label: 'Versions', icon: History },
+      { to: '/app/accesses', label: 'Access Grants', icon: KeyRound },
     ],
   },
   {
     label: 'Records',
     items: [
-      { to: '/audit', label: 'Audit Logs', icon: ScrollText },
-      { to: '/login-logs', label: 'Login Logs', icon: LogOut },
+      { to: '/app/audit', label: 'Audit Logs', icon: ScrollText },
+      { to: '/app/login-logs', label: 'Login Logs', icon: LogOut },
     ],
   },
 ];

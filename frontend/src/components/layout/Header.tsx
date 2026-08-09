@@ -7,8 +7,9 @@ import { Avatar } from './Avatar';
 /** Derives a breadcrumb title from the current route. */
 export function usePageTitle(): string {
   const { pathname } = useLocation();
-  if (pathname === '/') return 'Dashboard';
-  const segment = pathname.split('/').filter(Boolean)[0];
+  if (pathname === '/app') return 'Dashboard';
+  // Routes under the admin console are /app/<page>.
+  const segment = pathname.split('/').filter(Boolean)[1];
   return segment
     ? segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
     : 'Overview';

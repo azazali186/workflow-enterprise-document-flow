@@ -20,7 +20,7 @@ export function LoginPage() {
   const loading = status === 'loading';
 
   useEffect(() => {
-    if (status === 'authenticated') navigate('/', { replace: true });
+    if (status === 'authenticated') navigate('/app', { replace: true });
   }, [status, navigate]);
 
   const onSubmit = async (e: FormEvent) => {
