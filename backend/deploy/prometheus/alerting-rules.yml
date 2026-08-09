@@ -1,0 +1,55 @@
+# Alerting rules for DocuFlow. Load via Prometheus rule_files and wire
+# Alertmanager routing/notifications in your deployment.
+groups:
+  - name: docuflow
+    rules:
+      - alert: DocuFlowInstanceDown
+        expr: up{job="docuflow"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "DocuFlow backend is unreachable"
+          description: "No scrape of the docuflow target for over 2 minutes."
+
+      - alert: DocuFlowHighErrorRate
+        # The envelope answers HTTP 200 with the outcome in the body business
+        # code, and the metrics middleware labels requests by that code, so
+        # status=5xx here means business-code 5xx — not literal HTTP status.
+        expr: |
+          sum(rate(docuflow_http_requests_total{status=~"5.."}[5m]))
+            / clamp_min(sum(rate(docuflow_http_requests_total[5m])), 1)
+          > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DocuFlow error rate above 5%"
+          description: "Business-code server errors are >5% of traffic over the last 5 minutes."
+
+      - alert: DocuFlowHighLatency
+        expr: histogram_quantile(0.99, sum(rate(docuflow_http_request_duration_seconds_bucket[5m])) by (le)) > 1.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DocuFlow p99 latency above 1.5s"
+          description: "p99 request latency exceeds 1.5 seconds for 10 minutes."
+
+      - alert: DocuFlowOutboxBacklog
+        expr: docuflow_outbox_pending_messages > 50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DocuFlow outbox backlog"
+          description: "More than 50 outbox messages stuck pending — NATS JetStream may be down."
+
+      - alert: DocuFlowCircuitBreakerOpen
+        expr: docuflow_circuit_breaker_state{dependency="nats"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DocuFlow NATS circuit breaker open"
+          description: "The NATS publish breaker has been open for 5 minutes."

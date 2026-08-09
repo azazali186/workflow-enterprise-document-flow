@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docuflow-config
+  namespace: docuflow
+data:
+  ENV: "production"
+  PORT: "8080"
+  LOG_LEVEL: "info"
+  NATS_URL: "nats://docuflow-nats:4222"
+  REDIS_URL: "redis://docuflow-redis:6379"
+  S3_ENDPOINT: "docuflow-minio:9000"
+  S3_BUCKET: "docuflow"
+  S3_REGION: "us-east-1"
+  S3_USE_SSL: "false"
+  CORS_ORIGINS: "https://app.aeroxe.io"
+  # Cluster pod/service CIDR so X-Forwarded-For from the ingress is trusted.
+  TRUSTED_PROXIES: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+  RATE_LIMIT: "120"
+  MAX_BODY_SIZE_MB: "10"
+  # Swagger UI is off by default in production; enable explicitly if needed.
+  SWAGGER_ENABLED: "false"
+  # Connection pool per replica — raise PostgreSQL max_connections accordingly.
+  DB_MAX_OPEN_CONNS: "25"
+  DB_MAX_IDLE_CONNS: "10"

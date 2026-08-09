@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: docuflow-api
+  namespace: docuflow
+  labels:
+    app.kubernetes.io/name: docuflow-api
+spec:
+  selector:
+    app.kubernetes.io/name: docuflow-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+  type: ClusterIP

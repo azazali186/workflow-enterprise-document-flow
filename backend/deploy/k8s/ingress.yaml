@@ -1,0 +1,28 @@
+# Ingress for the API. TLS terminates at the ingress controller; the backend
+# itself serves plain HTTP on 8080 behind the service.
+# Replace app.example.com and the secret name for your environment.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docuflow-api
+  namespace: docuflow
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - app.example.com
+      secretName: docuflow-tls # TLS certificate secret (managed by cert-manager or your CA)
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docuflow-api
+                port:
+                  name: http

@@ -1,0 +1,22 @@
+# Builds
+/bin/
+*.exe
+
+# Local env & secrets
+.env
+.env.local
+
+# Uploaded files (local storage)
+/storage/
+storage/
+
+# Test artifacts
+coverage.out
+*.prof
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

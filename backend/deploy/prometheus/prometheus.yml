@@ -1,0 +1,10 @@
+# Prometheus scrape configuration for DocuFlow.
+# The backend exports metrics on POST /metrics (Hertz handler) — Prometheus
+# scrapes are GET, so the app also serves /metrics via GET in production.
+scrape_configs:
+  - job_name: docuflow
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["app:8080"]
+        labels:
+          service: docuflow-backend

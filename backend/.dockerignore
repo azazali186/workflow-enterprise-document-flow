@@ -1,0 +1,15 @@
+# Keep secrets, build artifacts and local data out of the image build context.
+.git
+.gitignore
+.gitattributes
+**/.git
+.env
+.env.*
+!.env.example
+bin/
+storage/
+tmp/
+coverage.out
+*.log
+*.prof
+docs/swagger.yaml

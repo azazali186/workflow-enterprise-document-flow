@@ -1,0 +1,17 @@
+-- 000001_init.down.sql
+DROP TABLE IF EXISTS outbox_messages;
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS login_logs;
+DROP TABLE IF EXISTS accesses;
+DROP TABLE IF EXISTS templates;
+DROP TABLE IF EXISTS storages;
+DROP TABLE IF EXISTS approvals;
+DROP TABLE IF EXISTS verifications;
+DROP TABLE IF EXISTS versions;
+DROP TABLE IF EXISTS documents;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS role_permissions;
+DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS users;
