@@ -14,7 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -o /out/docuflow-server ./cmd/server
 
 # ---- runtime stage ----
-FROM alpine:3.20
+FROM alpine:3.24
 
 # Non-root runtime user and writable storage volume.
 RUN addgroup -S app && adduser -S -G app -u 10001 app \
