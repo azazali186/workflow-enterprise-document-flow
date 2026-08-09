@@ -12,6 +12,8 @@ interface SearchableSelectProps {
   placeholder?: string;
   disabled?: boolean;
   autoFocus?: boolean;
+  /** Accessible name when the control has no visible label. */
+  ariaLabel?: string;
   /** Entity the dropdown lists (users, roles, categories, templates, documents). */
   kind: OptionKind;
   /** Selected option id ('' = none). Controlled from the parent form. */
@@ -37,6 +39,7 @@ export function SearchableSelect({
   placeholder = 'Search…',
   disabled,
   autoFocus,
+  ariaLabel,
   kind,
   value,
   onChange,
@@ -54,7 +57,10 @@ export function SearchableSelect({
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { data: options = [], isFetching, isError } = useOptions(kind, query, open);
+  // Fetch while open (typing/searching) or while a value needs its name
+  // resolved (e.g. a pre-set filter id after a page reload).
+  const needsName = Boolean(value && !valueName);
+  const { data: options = [], isFetching, isError } = useOptions(kind, query, open || needsName);
 
   // If the parent replaces the selection externally, mirror its label.
   useEffect(() => {
@@ -69,12 +75,14 @@ export function SearchableSelect({
     }
   }, [value, valueName, options]);
 
-  // Close when clicking outside.
+  // Close when clicking outside — and drop any in-progress query so the
+  // input reverts to the selected option's name instead of stale typed text.
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setQuery('');
       }
     };
     document.addEventListener('mousedown', onPointerDown);
@@ -118,9 +126,11 @@ export function SearchableSelect({
         break;
       case 'Escape':
         e.preventDefault();
+        setQuery('');
         setOpen(false);
         break;
       case 'Tab':
+        setQuery('');
         setOpen(false);
         break;
     }
@@ -140,6 +150,7 @@ export function SearchableSelect({
           ref={inputRef}
           id={inputId}
           role="combobox"
+          aria-label={ariaLabel}
           aria-expanded={open}
           aria-controls={listboxId}
           aria-activedescendant={open && options[highlighted] ? `${listboxId}-${options[highlighted].id}` : undefined}
@@ -154,7 +165,7 @@ export function SearchableSelect({
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           className={cn(
-            'w-full rounded-lg border bg-white py-2 pl-9 pr-16 text-sm text-ink-900 placeholder:text-ink-300',
+            'h-9.5 w-full rounded-lg border bg-white pl-9 pr-16 text-sm text-ink-900 placeholder:text-ink-300',
             'transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/30',
             'disabled:cursor-not-allowed disabled:bg-paper-100 disabled:text-ink-400',
             error ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-500/30'

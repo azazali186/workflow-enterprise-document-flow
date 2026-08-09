@@ -123,6 +123,7 @@ export function DocumentsPage() {
           </Select>
           <SearchableSelect
             kind="categories"
+            ariaLabel="Filter by category"
             value={String(table.filters.category_id ?? '')}
             onChange={(id) => table.setFilter('category_id', id)}
             placeholder="All categories"

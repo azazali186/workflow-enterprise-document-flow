@@ -62,11 +62,14 @@ func (s *OptionsService) List(ctx context.Context, kind, search string, limit in
 		tx = tx.Where(spec.extraCond)
 	}
 	if search = strings.TrimSpace(search); search != "" {
+		// Escape LIKE wildcards so a literal % or _ in user input never acts as
+		// a pattern (a search for "100%" must not match every row).
+		escaped := strings.NewReplacer("\\", "\\\\", "%", "\\%", "_", "\\_").Replace(search)
 		parts := make([]string, 0, len(spec.searchCols))
 		args := make([]any, 0, len(spec.searchCols))
 		for _, col := range spec.searchCols {
-			parts = append(parts, "LOWER("+col+") LIKE LOWER(?)")
-			args = append(args, "%"+search+"%")
+			parts = append(parts, "LOWER("+col+") LIKE LOWER(?) ESCAPE '\\'")
+			args = append(args, "%"+escaped+"%")
 		}
 		tx = tx.Where("("+strings.Join(parts, " OR ")+")", args...)
 	}
